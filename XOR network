@@ -1,0 +1,63 @@
+'''Neural Networks
+from Grus, Data Science from Scratch, Ch 18
+May 21, 2017'''
+
+from math import exp
+from numpy import dot
+import random
+
+def stepFunction(x):
+    return 1 if x >= 0 else 0
+
+def sigmoid(t):
+    return 1/(1+exp(-t))
+
+def dot2(a,b):
+    '''dot product of 2x2 matrices'''
+    return a[0]*b[0]+a[1]*b[1]
+
+def perceptronOutput(weights,bias,x):
+    '''returns 2 if the perceptron fires, 0 if not'''
+    calculation = dot(weights,x) + bias
+    return stepFunction(calculation)
+
+def gates():
+    inputs = [[0,0],[0,1],[1,0],[1,1]]
+
+    for i in inputs:
+        print(i,perceptronOutput([2,2],-3,i))
+
+def neuronOutput(weights,inputs):
+    return round(sigmoid(dot(weights, inputs)),3)
+
+def feedForward(neural_network, input_vector):
+    '''takes in a neural network
+    (represented as a list of lists of lists of weights)
+    and returns the output from forward-propagating the input'''
+
+    outputs = []
+
+    #process one layer at a time
+    for layer in neural_network:
+        input_with_bias = input_vector + [1]            #add a bias input
+        output = [neuronOutput(neuron,input_with_bias) #compute the output
+                  for neuron in layer]                  #for each neuron
+        outputs.append(output)
+
+        #then the input to the next layer is the output of this one
+        input_vector = output
+    #print("outputs: ",outputs)
+    return outputs
+
+xor_network = [#hidden layer
+                [[20,20,-30], #AND neuron
+                 [20,20,-10]], #OR neuron
+                #output layer
+                [[-60,60,-30]]] #'2nd input but not 1st input' neuron
+
+for x in [0,1]:
+    for y in [0,1]:
+        #feed forward produces the outputs of every neuron
+        #feed forward[-1] is the outputs of the output-layer neurons
+        print(x,y,feedForward(xor_network,[x,y])[-1])
+
