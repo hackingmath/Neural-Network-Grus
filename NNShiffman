@@ -1,0 +1,85 @@
+from __future__ import division
+
+'''From chapter 10 of Shiffman's Nature of Code'''
+
+class Perceptron:
+    global weights,learning_constant
+    weights = [] #list for inputs
+    learning_constant = 0.00001
+    
+    def __init__(self,n):
+        for i in range(n):
+            #random to start
+            weights.append(random(-1,1))
+            
+    def activate(self,sum):
+        if sum > 0: 
+            return 1
+        else:
+            return -1
+    
+    def feedforward(self,inputs):
+        self.sum = 0
+        for i,weight in enumerate(weights):
+            self.sum += inputs[i]*weight
+        return self.activate(self.sum)
+    
+    def train(self, inputs,desired):
+        self.guess = self.feedforward(inputs)
+        self.error = desired - self.guess
+        for i in range(len(weights)):
+            weights[i] += inputs[i]*self.error*learning_constant
+    
+class Trainer:
+    global inputs,answer
+    
+    def __init__(self,x,y,a):
+        self.inputs = [x,y,1]
+        self.answer = a
+        
+training = []
+training_num = 2000
+count = 0
+
+def f(x): 
+    '''line to check if points are above or below'''
+    return 2*x + 1    
+    
+def setup():
+    global p,weights,training
+    size(640,360)
+    p = Perceptron(3)
+    for i in range(training_num):
+        x = random(-width/2,width/2)
+        y = random(-height/2,height/2)
+        answer = 1
+        if y <f(x):
+            answer = -1
+        training.append(Trainer(x,y,answer))
+    '''xypoint = (50,-12,1) #x,y and bias
+    result = p.feedforward(xypoint)
+    println(weights)
+    println(p.sum)
+    println(result)'''
+    
+def draw():
+    global count, training
+    background(255)
+    translate(width/2, height/2)
+    #for viz'n purposes, draw the actual f(x) line
+    myLine = [[x,f(x)] for x in range(-width//2,width//2)]
+    for i,pt in enumerate(myLine):
+        if i<len(myLine)-1:
+            line(pt[0],pt[1],myLine[i+1][0],myLine[i+1][1])
+    
+    p.train(training[count].inputs, training[count].answer)
+    count = (count + 1) % len(training)
+    
+    for i in range(count):
+        stroke(0)
+        guess = p.feedforward(training[i].inputs)
+        if guess > 0: 
+            fill(255,0,0)
+        else: fill(0,0,255)
+        
+        ellipse(training[i].inputs[0],training[i].inputs[1],8,8)
